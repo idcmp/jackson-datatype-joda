@@ -1,14 +1,25 @@
 package com.fasterxml.jackson.datatype.joda;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.joda.time.*;
-
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.Period;
+import org.joda.time.ReadableDateTime;
+import org.joda.time.ReadableInstant;
+import org.joda.time.format.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * Unit tests for verifying limited interoperability for Joda time.
@@ -84,6 +95,19 @@ public class JodaDeserializationTest extends JodaTestBase
         DateTime date = mapper.readValue("[\"org.joda.time.DateTime\",\"1972-12-28T12:00:01.000+0000\"]", DateTime.class);
         assertNotNull(date);
         assertEquals("1972-12-28T12:00:01.000Z", date.toString());
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for custom {@link org.joda.time.format.DateTimeFormatter}
+    /**********************************************************
+     */
+    public void testDeserCustomDateFormat() throws IOException
+    {
+        ObjectMapper mapper = jodaMapper(DateTimeFormat.forPattern("MMMM dd, yyyy HH:mm"));
+        DateTime dateTime = mapper.readValue(quote("May 10, 2001 12:34"), DateTime.class);
+        assertNotNull(dateTime);
+        assertEquals("2001-05-10T12:34:00.000Z", dateTime.toString());
     }
     
     /*

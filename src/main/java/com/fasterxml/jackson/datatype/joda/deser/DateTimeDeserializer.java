@@ -1,16 +1,18 @@
 package com.fasterxml.jackson.datatype.joda.deser;
 
+import java.io.IOException;
+
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.ReadableDateTime;
+import org.joda.time.ReadableInstant;
+import org.joda.time.format.DateTimeFormatter;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.ReadableDateTime;
-import org.joda.time.ReadableInstant;
-
-import java.io.IOException;
 
 /**
  * Basic deserializer for {@link ReadableDateTime} and its subtypes.
@@ -21,14 +23,15 @@ public class DateTimeDeserializer
     extends JodaDeserializerBase<ReadableInstant>
 {
     @SuppressWarnings("unchecked")
-    public DateTimeDeserializer(Class<? extends ReadableInstant> cls) {
-        super((Class<ReadableInstant>)cls);
+    public DateTimeDeserializer(Class<? extends ReadableInstant> cls,
+                                DateTimeFormatter dateTimeFormatter) {
+        super((Class<ReadableInstant>) cls, dateTimeFormatter);
     }
 
     @SuppressWarnings("unchecked")
-    public static <T extends ReadableInstant> JsonDeserializer<T> forType(Class<T> cls)
+    public static <T extends ReadableInstant> JsonDeserializer<T> forType(Class<T> cls, DateTimeFormatter dateTimeFormatter)
     {
-        return (JsonDeserializer<T>) new DateTimeDeserializer(cls);
+        return (JsonDeserializer<T>) new DateTimeDeserializer(cls, dateTimeFormatter);
     }
     
     
@@ -45,7 +48,8 @@ public class DateTimeDeserializer
             if (str.length() == 0) { // [JACKSON-360]
                 return null;
             }
-            return new DateTime(str, DateTimeZone.forTimeZone(ctxt.getTimeZone()));
+
+            return dateTimeFormatter.withZone(DateTimeZone.forTimeZone(ctxt.getTimeZone())).parseDateTime(str);
         }
         throw ctxt.mappingException(getValueClass());
     }

@@ -1,12 +1,13 @@
 package com.fasterxml.jackson.datatype.joda;
 
-import java.io.*;
+import static org.junit.Assert.assertArrayEquals;
 
-import junit.framework.TestCase;
+import java.io.IOException;
 
-import static org.junit.Assert.*;
+import org.joda.time.format.DateTimeFormatter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import junit.framework.TestCase;
 
 public abstract class JodaTestBase extends TestCase
 {
@@ -22,7 +23,14 @@ public abstract class JodaTestBase extends TestCase
         mapper.registerModule(new JodaModule());
         return mapper;
     }
-    
+
+    protected ObjectMapper jodaMapper(DateTimeFormatter dateTimeFormatter)
+    {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JodaModule(dateTimeFormatter));
+        return mapper;
+    }
+
     /*
     /**********************************************************
     /* Additional assert methods

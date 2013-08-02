@@ -2,7 +2,16 @@ package com.fasterxml.jackson.datatype.joda;
 
 import java.io.IOException;
 
-import org.joda.time.*;
+import org.joda.time.DateMidnight;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.Duration;
+import org.joda.time.Instant;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+import org.joda.time.Period;
+import org.joda.time.format.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -165,7 +174,7 @@ public class JodaSerializationTest extends JodaTestBase
         mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);        
         assertEquals(quote("2001-05-25T10:15:30.037"), mapper.writeValueAsString(date));
     }
-    
+
     public void testLocalDateTimeSerWithTypeInfo() throws IOException
     {
         LocalDateTime date = new LocalDateTime(2001, 5, 25,
@@ -200,6 +209,26 @@ public class JodaSerializationTest extends JodaTestBase
         mapper.addMixInAnnotations(Period.class, ObjectConfiguration.class);
         String json = mapper.writeValueAsString(in);
         assertEquals("[\"org.joda.time.Period\",\"PT1H2M3.004S\"]", json);
+    }
+
+    /*
+    /**********************************************************
+    /* Tests for custom {@link org.joda.time.format.DateTimeFormatter}
+    /**********************************************************
+     */
+
+    public void testCustomDateTimeFormatterSer() throws IOException
+    {
+        DateTime date = new DateTime(2001, 5, 25,
+                10, 15, 30, 37);
+
+        ObjectMapper mapper = jodaMapper(DateTimeFormat.forPattern("MMMM dd, yyyy HH:mm"));
+        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        assertEquals(quote("May 25, 2001 10:15"), mapper.writeValueAsString(date));
+
+        ObjectMapper mapper2 = jodaMapper(DateTimeFormat.forPattern("HH:mm"));
+        mapper2.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        assertEquals(quote("10:15"), mapper2.writeValueAsString(date));
     }
 
     /*
